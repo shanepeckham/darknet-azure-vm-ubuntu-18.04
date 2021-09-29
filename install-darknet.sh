@@ -66,15 +66,8 @@ sudo apt-get install -y --no-install-recommends \
  # For tensorflow 2 compatibility with cuda 10.2
  sudo ln -s /usr/local/cuda-10.2/targets/x86_64-linux/lib/libcudart.so.10.2 /usr/lib/x86_64-linux-gnu/libcudart.so.10.1
 
-# Zip stuff and media players (VLC and smplayer)
-sudo apt install -y unzip zip vlc smplayer
-
-# Install VOTT labeling tool
-wget https://github.com/microsoft/VoTT/releases/download/v2.2.0/vott-2.2.0-linux.snap
-sudo apt install -y snap
-sudo snap install --dangerous vott-2.2.0-linux.snap
-
 # For X2Go (remote desktop server-side packages)
+echo "Installing X2G0.." >> install-log.txt
 sudo apt-add-repository -y ppa:x2go/stable
 sudo apt update
 sudo apt install -y x2goserver x2goserver-xsession x2golxdebindings x2gomatebindings xfce4
@@ -107,4 +100,4 @@ sudo apt install -y python3-pip python3-dev python3-venv libglib2.0-0 libsm6 lib
 cd /usr/local/bin
 ln -s /usr/bin/python3 python
 pip3 install --upgrade pip
-
+echo "Done..." >> install-log.txt
