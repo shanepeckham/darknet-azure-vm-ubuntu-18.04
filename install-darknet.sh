@@ -79,26 +79,9 @@ sudo apt-add-repository -y ppa:x2go/stable
 sudo apt update
 sudo apt install -y x2goserver x2goserver-xsession x2golxdebindings x2gomatebindings xfce4
 
-# Install nvidia docker
-echo "Installing nvidia docker..." >> install-log.txt
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-sudo add-apt-repository -y "deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable"
-sudo apt install -y docker-ce
-curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add
-curl -s -L https://nvidia.github.io/nvidia-docker/ubuntu18.04/nvidia-docker.list -o nvidia-docker.list
-cp nvidia-docker.list /etc/apt/sources.list.d/nvidia-docker.list
-apt update
-apt install -y nvidia-docker2 2>> install-log.txt
-pkill -SIGHUP dockerd
-
 # Install OpenCV
 echo "Installing OpenCV..." >> install-log.txt
 sudo apt update && sudo apt install -y libopencv-dev python3-opencv 2>> install-log.txt
-
-# Clone darknet
-cd $WD
-git clone https://github.com/AlexeyAB/darknet.git
-cd darknet/
 
 # Update variables to enable GPU acceleration for build
 sed -i "s/GPU=0/GPU=1/g" Makefile
@@ -119,43 +102,9 @@ sed -i "s/NVCC=nvcc/NVCC=\/usr\/local\/cuda\/bin\/nvcc/g" Makefile
 # Change permissions on shell scripts
 sudo chmod ugo+x *.sh
 
-echo "Building darknet..." >> install-log.txt
-
-# Build darknet
-sudo make 2>> install-log.txt
-
-# Change permissions to all darknet resources
-cd $WD
-sudo chmod -R ugo+rw darknet/
-
 # Install and set up Python
 sudo apt install -y python3-pip python3-dev python3-venv libglib2.0-0 libsm6 libxext6 libxrender-dev
 cd /usr/local/bin
 ln -s /usr/bin/python3 python
 pip3 install --upgrade pip
 
-# Git clone TensorFlow Lite darknet conversion project
-cd $WD
-git clone https://github.com/hunglc007/tensorflow-yolov4-tflite.git
-chmod -R ugo+rw tensorflow-yolov4-tflite
-cd tensorflow-yolov4-tflite
-# Check out specific commit to pin the repo - may update as needed in future
-git checkout 9f16748
-# Create a python environment
-python3 -m venv env
-source env/bin/activate
-pip install --upgrade pip
-pip install --upgrade setuptools
-# Install gpu package version of tensorflow because on NC series VMs
-sed -i "s/2.3.0rc0/2.3.1/g" requirements-gpu.txt
-pip install -r requirements-gpu.txt
-
-# Change owner and group of folders so can access with VoTT
-cd $WD
-sudo chown -R $adminUser:$adminUser darknet
-sudo chown -R $adminUser:$adminUser tensorflow-yolov4-tflite
-
-# Install firefox
-sudo apt upgrade && sudo apt install -y firefox
-
-echo "Done building darknet and installing projects!" >> install-log.txt
